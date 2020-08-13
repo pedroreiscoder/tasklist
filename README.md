@@ -50,3 +50,7 @@ Para assegurar a correta comunicação com um hipotético aplicativo em frontend
 ### Diferenciais:
 
 - Aplicação rodando em ambiente Docker
+
+### Entrega:
+
+- Faça um fork deste repositório para sua conta pessoal no bitbucket, se certifique de que esteja público, e quando finalizar, responda no e-mail do desafio com o link do seu repositório.
