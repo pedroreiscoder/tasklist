@@ -1,9 +1,9 @@
 ### O desafio
-O objetivo desse desafio é apresentar seus conhecimentos em Python3 sobre APIs RestFULL, operações com bancos de dados, uso de arquivo de configuração, testes automatizados com cobertura, logging, controle de versões, documentação de código e de uso e estrutura/qualidade de código.
+O objetivo desse desafio é apresentar seus conhecimentos em (Python3, NodeJS ou .Net Core) sobre APIs RestFULL, operações com bancos de dados, uso de arquivo de configuração, testes automatizados com cobertura, logging, controle de versões, documentação de código e de uso e estrutura/qualidade de código.
 
 A aplicação a ser desenvolvida será o backend para gerenciar listas de tarefas.
 
-Ela deve ser constuída em Python e você pode utilizar um framework (Django/Flask/FastAPI/Pyramid) e o banco de dados de sua preferência.
+Ela deve ser constuída em (Python, NodeJS ou .Net Core) e você pode utilizar um framework e o banco de dados de sua preferência.
 
 A API deve conter os seguintes endpoints:
 
