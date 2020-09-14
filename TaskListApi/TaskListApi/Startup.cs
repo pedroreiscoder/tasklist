@@ -30,6 +30,9 @@ namespace TaskListApi
             services.AddControllers();
             services.AddDbContext<AppDbContext>(o => o.UseSqlServer(Configuration.GetConnectionString("TaskListConnection")));
             services.AddScoped<ITagsRepo, TagsRepo>();
+            services.AddScoped<ITasksRepo, TasksRepo>();
+            services.AddScoped<ITaskListsRepo, TaskListsRepo>();
+            services.AddScoped<ITaskTagsRepo, TaskTagsRepo>();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
         }
         

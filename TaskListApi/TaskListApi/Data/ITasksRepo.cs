@@ -7,8 +7,8 @@ namespace TaskListApi.Data
     {
         IEnumerable<Task> GetTasks(long taskListId);
         Task GetTaskById(long id);
-        Task PostTask(Task task);
-        void PutTask(long id, Task task);
-        Task DeleteTask(long id);
+        void PostTask(Task task);
+        void DeleteTask(Task task);
+        void SaveChanges();
     }
 }

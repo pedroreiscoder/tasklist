@@ -26,17 +26,11 @@ namespace TaskListApi.Data
 
         public void PostTag(Tag tag)
         {
-            if (tag == null)
-                throw new ArgumentNullException(nameof(tag));
-
             _context.Tags.Add(tag);
         }
 
         public void DeleteTag(Tag tag)
         {
-            if (tag == null)
-                throw new ArgumentNullException(nameof(tag));
-
             _context.Tags.Remove(tag);
         }
 

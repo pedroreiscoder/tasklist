@@ -32,30 +32,6 @@ namespace TaskListApi.Controllers
             return Ok(_mapper.Map<IEnumerable<TagReadDto>>(tags));
         }
 
-        [HttpGet("{id}")]
-        public ActionResult<TagReadDto> GetTagById(long id)
-        {
-            Tag tag = _repository.GetTagById(id);
-
-            if (tag == null)
-                return NotFound();
-
-            return Ok(_mapper.Map<TagReadDto>(tag));
-        }
-
-        [HttpPost]
-        public ActionResult<TagCreateDto> PostTag(TagCreateDto tagCreateDto)
-        {
-            Tag tag = _mapper.Map<Tag>(tagCreateDto);
-
-            _repository.PostTag(tag);
-            _repository.SaveChanges();
-
-            TagReadDto tagReadDto = _mapper.Map<TagReadDto>(tag);
-
-            return CreatedAtAction("GetTagById", new { id = tagReadDto.Id }, tagReadDto);
-        }
-
         [HttpPut("{id}")]
         public ActionResult PutTag(long id, TagUpdateDto tagUpdateDto)
         {
