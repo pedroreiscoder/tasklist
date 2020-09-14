@@ -7,8 +7,8 @@ namespace TaskListApi.Data
     {
         IEnumerable<Tag> GetTags();
         Tag GetTagById(long id);
-        Tag PostTag(Tag tag);
-        void PutTag(long id, Tag tag);
-        Tag DeleteTag(long id);
+        void PostTag(Tag tag);
+        void DeleteTag(Tag tag);
+        void SaveChanges();
     }
 }
