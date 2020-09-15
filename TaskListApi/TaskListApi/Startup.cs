@@ -12,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Serialization;
 using TaskListApi.Data;
 
 namespace TaskListApi
@@ -27,7 +28,7 @@ namespace TaskListApi
         
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson(s => s.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver());
             services.AddDbContext<AppDbContext>(o => o.UseSqlServer(Configuration.GetConnectionString("TaskListConnection")));
             services.AddScoped<ITagsRepo, TagsRepo>();
             services.AddScoped<ITasksRepo, TasksRepo>();

@@ -14,7 +14,7 @@ namespace TaskListApi.Profiles
         {
             CreateMap<TaskList, TaskListReadDto>();
             CreateMap<TaskListCreateDto, TaskList>();
-            CreateMap<TaskListUpdateDto, TaskList>();
+            CreateMap<TaskListUpdateDto, TaskList>().ReverseMap();
         }
     }
 }

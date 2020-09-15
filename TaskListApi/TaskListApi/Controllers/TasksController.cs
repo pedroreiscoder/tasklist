@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using TaskListApi.Data;
 using TaskListApi.Dtos;
@@ -167,6 +168,26 @@ namespace TaskListApi.Controllers
                     _taskTagsRepo.SaveChanges();
                 }
             }
+
+            return NoContent();
+        }
+
+        [HttpPatch("{id}")]
+        public ActionResult PatchTask(long id, JsonPatchDocument<TaskUpdateDto> jsonPatchDocument)
+        {
+            Models.Task task = _tasksRepo.GetTaskById(id);
+
+            if (task == null)
+                return NotFound();
+
+            TaskUpdateDto taskUpdateDto = _mapper.Map<TaskUpdateDto>(task);
+            jsonPatchDocument.ApplyTo(taskUpdateDto, ModelState);
+
+            if (!TryValidateModel(taskUpdateDto))
+                return ValidationProblem(ModelState);
+
+            _mapper.Map(taskUpdateDto, task);
+            _tasksRepo.SaveChanges();
 
             return NoContent();
         }

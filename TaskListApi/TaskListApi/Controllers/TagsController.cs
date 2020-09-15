@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using TaskListApi.Data;
 using TaskListApi.Dtos;
@@ -39,6 +40,26 @@ namespace TaskListApi.Controllers
 
             if (tag == null)
                 return NotFound();
+
+            _mapper.Map(tagUpdateDto, tag);
+            _repository.SaveChanges();
+
+            return NoContent();
+        }
+
+        [HttpPatch("{id}")]
+        public ActionResult PatchTag(long id, JsonPatchDocument<TagUpdateDto> jsonPatchDocument)
+        {
+            Tag tag = _repository.GetTagById(id);
+
+            if (tag == null)
+                return NotFound();
+
+            TagUpdateDto tagUpdateDto = _mapper.Map<TagUpdateDto>(tag);
+            jsonPatchDocument.ApplyTo(tagUpdateDto, ModelState);
+
+            if (!TryValidateModel(tagUpdateDto))
+                return ValidationProblem(ModelState);
 
             _mapper.Map(tagUpdateDto, tag);
             _repository.SaveChanges();

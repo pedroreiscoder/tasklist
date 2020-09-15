@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using TaskListApi.Data;
 using TaskListApi.Dtos;
@@ -158,6 +159,26 @@ namespace TaskListApi.Controllers
 
             if (taskList == null)
                 return NotFound();
+
+            _mapper.Map(taskListUpdateDto, taskList);
+            _taskListsRepo.SaveChanges();
+
+            return NoContent();
+        }
+
+        [HttpPatch("{id}")]
+        public ActionResult PatchTaskList(long id, JsonPatchDocument<TaskListUpdateDto> jsonPatchDocument)
+        {
+            TaskList taskList = _taskListsRepo.GetTaskListById(id);
+
+            if (taskList == null)
+                return NotFound();
+
+            TaskListUpdateDto taskListUpdateDto = _mapper.Map<TaskListUpdateDto>(taskList);
+            jsonPatchDocument.ApplyTo(taskListUpdateDto, ModelState);
+
+            if (!TryValidateModel(taskListUpdateDto))
+                return ValidationProblem(ModelState);
 
             _mapper.Map(taskListUpdateDto, taskList);
             _taskListsRepo.SaveChanges();

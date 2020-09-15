@@ -13,7 +13,7 @@ namespace TaskListApi.Profiles
         {
             CreateMap<Models.Task, TaskReadDto>();
             CreateMap<TaskCreateDto, Models.Task>();
-            CreateMap<TaskUpdateDto, Models.Task>();
+            CreateMap<TaskUpdateDto, Models.Task>().ReverseMap();
             CreateMap<TaskListTaskCreateDto, Models.Task>();
         }
     }
