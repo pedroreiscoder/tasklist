@@ -91,26 +91,22 @@ namespace TaskListApi.Controllers
             _taskListsRepo.PostTaskList(taskList);
             _taskListsRepo.SaveChanges();
 
-            Models.Task task;
             Tag tag;
             TaskTag taskTag;
 
-            foreach (TaskListTaskCreateDto taskListTaskCreateDto in taskListCreateDto.Tasks)
+            for (int i = 0; i < taskListCreateDto.Tasks.Count; i++)
             {
-                task = _mapper.Map<Models.Task>(taskListTaskCreateDto, opt => opt.AfterMap((src, dest) => dest.TaskListId = taskList.Id));
-                _tasksRepo.PostTask(task);
-                _tasksRepo.SaveChanges();
-
                 taskTag = new TaskTag()
                 {
-                    TaskId = task.Id
+                    TaskId = taskList.Tasks[i].Id
                 };
 
-                foreach (TagCreateDto tagCreateDto in taskListTaskCreateDto.Tags)
+                foreach (TagCreateDto tagCreateDto in taskListCreateDto.Tasks[i].Tags)
                 {
                     tag = _mapper.Map<Tag>(tagCreateDto);
                     _tagsRepo.PostTag(tag);
                     _tagsRepo.SaveChanges();
+
                     taskTag.TagId = tag.Id;
                     _taskTagsRepo.PostTaskTag(taskTag);
                     _taskTagsRepo.SaveChanges();
