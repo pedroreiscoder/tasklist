@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Builder;
@@ -30,6 +32,11 @@ namespace TaskListApi
         {
             services.AddControllers().AddNewtonsoftJson(s => s.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver());
             services.AddDbContext<AppDbContext>(o => o.UseSqlServer(Configuration.GetConnectionString("TaskListConnection")));
+            services.AddSwaggerGen(c => {
+                string xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                string xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
+            });
             services.AddScoped<ITagsRepo, TagsRepo>();
             services.AddScoped<ITasksRepo, TasksRepo>();
             services.AddScoped<ITaskListsRepo, TaskListsRepo>();
@@ -43,6 +50,10 @@ namespace TaskListApi
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseSwagger();
+
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "TaskListApi V1"));
 
             app.UseHttpsRedirection();
 

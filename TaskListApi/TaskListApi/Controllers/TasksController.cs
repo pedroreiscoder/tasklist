@@ -38,7 +38,13 @@ namespace TaskListApi.Controllers
             _mapper = mapper;
         }
 
+        /// <summary>
+        /// Retorna todas as tarefas de uma lista.
+        /// </summary>
+        /// <param name="taskListId">Id da lista de tarefas</param>
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public ActionResult<IEnumerable<TaskReadDto>> GetTasks(long taskListId)
         {
             TaskList taskList = _taskListsRepo.GetTaskListById(taskListId);
@@ -68,7 +74,13 @@ namespace TaskListApi.Controllers
             return Ok(taskDtos);
         }
 
+        /// <summary>
+        /// Retorna uma tarefa específica.
+        /// </summary>
+        /// <param name="id">Id da tarefa</param>
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public ActionResult<TaskReadDto> GetTaskById(long id)
         {
             Models.Task task = _tasksRepo.GetTaskById(id);
@@ -87,7 +99,14 @@ namespace TaskListApi.Controllers
             return Ok(taskReadDto);
         }
 
+        /// <summary>
+        /// Permite a criação de uma tarefa.
+        /// </summary>
+        /// <param name="taskCreateDto">Tarefa a ser cadastrada</param>
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult<TaskCreateDto> PostTask(TaskCreateDto taskCreateDto)
         {
             TaskList taskList = _taskListsRepo.GetTaskListById(taskCreateDto.TaskListId);
@@ -132,7 +151,15 @@ namespace TaskListApi.Controllers
             return CreatedAtAction("GetTaskById", new { id = taskReadDto.Id }, taskReadDto);
         }
 
+        /// <summary>
+        /// Permite a edição de uma tarefa.
+        /// </summary>
+        /// <param name="id">Id da tarefa</param>
+        /// <param name="taskUpdateDto">Tarefa com os novos dados</param>
         [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult PutTask(long id, TaskUpdateDto taskUpdateDto)
         {
             Models.Task task = _tasksRepo.GetTaskById(id);
@@ -172,7 +199,15 @@ namespace TaskListApi.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Permite a alteração de uma tarefa.
+        /// </summary>
+        /// <param name="id">Id da tarefa</param>
+        /// <param name="jsonPatchDocument">Dado a ser alterado na forma de JsonPatchDocument</param>
         [HttpPatch("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult PatchTask(long id, JsonPatchDocument<TaskUpdateDto> jsonPatchDocument)
         {
             Models.Task task = _tasksRepo.GetTaskById(id);
@@ -192,7 +227,13 @@ namespace TaskListApi.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Permite a remoção de uma tarefa.
+        /// </summary>
+        /// <param name="id">Id da tarefa</param>
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public ActionResult DeleteTask(long id)
         {
             Models.Task task = _tasksRepo.GetTaskById(id);

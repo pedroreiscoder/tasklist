@@ -38,7 +38,11 @@ namespace TaskListApi.Controllers
             _mapper = mapper;
         }
 
+        /// <summary>
+        /// Retorna todas as listas de tarefas cadastradas.
+        /// </summary>
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public ActionResult<IEnumerable<TaskListReadDto>> GetTaskLists()
         {
             IEnumerable<TaskList> taskLists = _taskListsRepo.GetTaskLists();
@@ -69,7 +73,13 @@ namespace TaskListApi.Controllers
             return Ok(taskListReadDtos);
         }
 
+        /// <summary>
+        /// Retorna uma lista de tarefas específica.
+        /// </summary>
+        /// <param name="id">Id da lista de tarefas</param>
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public ActionResult<TaskListReadDto> GetTaskListById(long id)
         {
             TaskList taskList = _taskListsRepo.GetTaskListById(id);
@@ -96,7 +106,13 @@ namespace TaskListApi.Controllers
             return Ok(taskListReadDto);
         }
 
+        /// <summary>
+        /// Permite a criação de uma lista de tarefas.
+        /// </summary>
+        /// <param name="taskListCreateDto">Lista de tarefas a ser cadastrada</param>
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult<TaskListCreateDto> PostTaskList(TaskListCreateDto taskListCreateDto)
         {
             TaskList taskList = _mapper.Map<TaskList>(taskListCreateDto);
@@ -152,7 +168,15 @@ namespace TaskListApi.Controllers
             return CreatedAtAction("GetTaskListById", new { id = taskListReadDto.Id }, taskListReadDto);
         }
 
+        /// <summary>
+        /// Permite a edição de uma lista de tarefas.
+        /// </summary>
+        /// <param name="id">Id da lista de tarefas</param>
+        /// <param name="taskListUpdateDto">Lista de tarefas com os novos dados</param>
         [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult PutTaskList(long id, TaskListUpdateDto taskListUpdateDto)
         {
             TaskList taskList = _taskListsRepo.GetTaskListById(id);
@@ -166,7 +190,15 @@ namespace TaskListApi.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Permite a alteração de uma lista de tarefas.
+        /// </summary>
+        /// <param name="id">Id da lista de tarefas</param>
+        /// <param name="jsonPatchDocument">Dado a ser alterado na forma de JsonPatchDocument</param>
         [HttpPatch("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult PatchTaskList(long id, JsonPatchDocument<TaskListUpdateDto> jsonPatchDocument)
         {
             TaskList taskList = _taskListsRepo.GetTaskListById(id);
@@ -186,7 +218,13 @@ namespace TaskListApi.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Permite a remoção de uma lista de tarefas.
+        /// </summary>
+        /// <param name="id">Id da lista de tarefas</param>
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public ActionResult DeleteTaskList(long id)
         {
             TaskList taskList = _taskListsRepo.GetTaskListById(id);
