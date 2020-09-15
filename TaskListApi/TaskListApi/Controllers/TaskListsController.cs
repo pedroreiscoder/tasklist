@@ -50,10 +50,16 @@ namespace TaskListApi.Controllers
             {
                 taskListReadDto = _mapper.Map<TaskListReadDto>(taskList);
 
-                for (int i = 0; i < taskList.Tasks.Count; i++)
+                if (taskList.Tasks != null && taskList.Tasks.Count > 0)
                 {
-                    tags = taskList.Tasks[i].TaskTags.Select(tt => tt.Tag).ToList();
-                    taskListReadDto.Tasks[i].Tags = _mapper.Map<List<TagReadDto>>(tags);
+                    for (int i = 0; i < taskList.Tasks.Count; i++)
+                    {
+                        if (taskList.Tasks[i].TaskTags != null && taskList.Tasks[i].TaskTags.Count > 0)
+                        {
+                            tags = taskList.Tasks[i].TaskTags.Select(tt => tt.Tag).ToList();
+                            taskListReadDto.Tasks[i].Tags = _mapper.Map<List<TagReadDto>>(tags);
+                        }
+                    }
                 }
 
                 taskListReadDtos.Add(taskListReadDto);
@@ -72,12 +78,18 @@ namespace TaskListApi.Controllers
 
             TaskListReadDto taskListReadDto = _mapper.Map<TaskListReadDto>(taskList);
 
-            List<Tag> tags;
-
-            for (int i = 0; i < taskList.Tasks.Count; i++)
+            if (taskList.Tasks != null && taskList.Tasks.Count > 0)
             {
-                tags = taskList.Tasks[i].TaskTags.Select(tt => tt.Tag).ToList();
-                taskListReadDto.Tasks[i].Tags = _mapper.Map<List<TagReadDto>>(tags);
+                List<Tag> tags;
+
+                for (int i = 0; i < taskList.Tasks.Count; i++)
+                {
+                    if (taskList.Tasks[i].TaskTags != null && taskList.Tasks[i].TaskTags.Count > 0)
+                    {
+                        tags = taskList.Tasks[i].TaskTags.Select(tt => tt.Tag).ToList();
+                        taskListReadDto.Tasks[i].Tags = _mapper.Map<List<TagReadDto>>(tags);
+                    }
+                }
             }
 
             return Ok(taskListReadDto);
