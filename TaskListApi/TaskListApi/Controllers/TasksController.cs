@@ -37,7 +37,7 @@ namespace TaskListApi.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet("{taskListId}")]
+        [HttpGet]
         public ActionResult<IEnumerable<TaskReadDto>> GetTasks(long taskListId)
         {
             TaskList taskList = _taskListsRepo.GetTaskListById(taskListId);
@@ -53,9 +53,14 @@ namespace TaskListApi.Controllers
 
             foreach (Models.Task task in tasks)
             {
-                tags = task.TaskTags.Select(tt => tt.Tag).ToList();
                 taskDto = _mapper.Map<TaskReadDto>(task);
-                taskDto.Tags = _mapper.Map<List<TagReadDto>>(tags);
+
+                if (task.TaskTags != null && task.TaskTags.Count > 0)
+                {
+                    tags = task.TaskTags.Select(tt => tt.Tag).ToList();
+                    taskDto.Tags = _mapper.Map<List<TagReadDto>>(tags);
+                }
+                
                 taskDtos.Add(taskDto);
             }
 
@@ -70,9 +75,13 @@ namespace TaskListApi.Controllers
             if (task == null)
                 return NotFound();
 
-            List<Tag> tags = task.TaskTags.Select(tt => tt.Tag).ToList();
             TaskReadDto taskReadDto = _mapper.Map<TaskReadDto>(task);
-            taskReadDto.Tags = _mapper.Map<List<TagReadDto>>(tags);
+
+            if (task.TaskTags != null && task.TaskTags.Count > 0)
+            {
+                List<Tag> tags = task.TaskTags.Select(tt => tt.Tag).ToList();
+                taskReadDto.Tags = _mapper.Map<List<TagReadDto>>(tags);
+            }
 
             return Ok(taskReadDto);
         }
@@ -90,23 +99,34 @@ namespace TaskListApi.Controllers
             _tasksRepo.PostTask(task);
             _tasksRepo.SaveChanges();
 
-            Tag tag;
-            TaskTag taskTag = new TaskTag()
+            if (taskCreateDto.Tags != null && taskCreateDto.Tags.Count > 0)
             {
-                TaskId = task.Id
-            };
+                Tag tag;
+                TaskTag taskTag = new TaskTag()
+                {
+                    TaskId = task.Id
+                };
 
-            foreach (TagCreateDto tagCreateDto in taskCreateDto.Tags)
-            {
-                tag = _mapper.Map<Tag>(tagCreateDto);
-                _tagsRepo.PostTag(tag);
-                _tagsRepo.SaveChanges();
-                taskTag.TagId = tag.Id;
-                _taskTagsRepo.PostTaskTag(taskTag);
-                _taskTagsRepo.SaveChanges();
+                foreach (TagCreateDto tagCreateDto in taskCreateDto.Tags)
+                {
+                    tag = _mapper.Map<Tag>(tagCreateDto);
+                    _tagsRepo.PostTag(tag);
+                    _tagsRepo.SaveChanges();
+
+                    taskTag.TagId = tag.Id;
+                    _taskTagsRepo.PostTaskTag(taskTag);
+                    _taskTagsRepo.SaveChanges();
+                }
             }
 
-            TaskReadDto taskReadDto = _mapper.Map<TaskReadDto>(task);
+            Models.Task taskCreated = _tasksRepo.GetTaskById(task.Id);
+            TaskReadDto taskReadDto = _mapper.Map<TaskReadDto>(taskCreated);
+
+            if (taskCreated.TaskTags != null && taskCreated.TaskTags.Count > 0)
+            {
+                List<Tag> tags = taskCreated.TaskTags.Select(tt => tt.Tag).ToList();
+                taskReadDto.Tags = _mapper.Map<List<TagReadDto>>(tags);
+            }
 
             return CreatedAtAction("GetTaskById", new { id = taskReadDto.Id }, taskReadDto);
         }
@@ -122,25 +142,30 @@ namespace TaskListApi.Controllers
             _mapper.Map(taskUpdateDto, task);
             _tasksRepo.SaveChanges();
 
-            IEnumerable<TaskTag> taskTags = _taskTagsRepo.GetTaskTagsByTask(task.Id);
-
-            _taskTagsRepo.DeleteTaskTags(taskTags);
-            _taskTagsRepo.SaveChanges();
-
-            Tag tag;
-            TaskTag taskTag = new TaskTag()
+            if (task.TaskTags != null && task.TaskTags.Count > 0)
             {
-                TaskId = task.Id
-            };
-
-            foreach (TagUpdateDto tagUpdateDto in taskUpdateDto.Tags)
-            {
-                tag = _mapper.Map<Tag>(tagUpdateDto);
-                _tagsRepo.PostTag(tag);
-                _tagsRepo.SaveChanges();
-                taskTag.TagId = tag.Id;
-                _taskTagsRepo.PostTaskTag(taskTag);
+                _taskTagsRepo.DeleteTaskTags(task.TaskTags);
                 _taskTagsRepo.SaveChanges();
+            }
+
+            if (taskUpdateDto.Tags != null && taskUpdateDto.Tags.Count > 0)
+            {
+                Tag tag;
+                TaskTag taskTag = new TaskTag()
+                {
+                    TaskId = task.Id
+                };
+
+                foreach (TagUpdateDto tagUpdateDto in taskUpdateDto.Tags)
+                {
+                    tag = _mapper.Map<Tag>(tagUpdateDto);
+                    _tagsRepo.PostTag(tag);
+                    _tagsRepo.SaveChanges();
+
+                    taskTag.TagId = tag.Id;
+                    _taskTagsRepo.PostTaskTag(taskTag);
+                    _taskTagsRepo.SaveChanges();
+                }
             }
 
             return NoContent();
