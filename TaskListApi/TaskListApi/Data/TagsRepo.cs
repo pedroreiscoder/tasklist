@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using TaskListApi.Models;
@@ -16,12 +17,16 @@ namespace TaskListApi.Data
 
         public IEnumerable<Tag> GetTags()
         {
-            return _context.Tags.ToList();
+            return _context.Tags
+                .Include(t => t.TaskTags)
+                .ToList();
         }
 
         public Tag GetTagById(long id)
         {
-            return _context.Tags.Find(id);
+            return _context.Tags
+                .Include(t => t.TaskTags)
+                .FirstOrDefault(t => t.Id == id);
         }
 
         public void PostTag(Tag tag)
