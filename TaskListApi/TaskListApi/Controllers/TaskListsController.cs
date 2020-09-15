@@ -103,29 +103,50 @@ namespace TaskListApi.Controllers
             _taskListsRepo.PostTaskList(taskList);
             _taskListsRepo.SaveChanges();
 
-            Tag tag;
-            TaskTag taskTag;
-
-            for (int i = 0; i < taskListCreateDto.Tasks.Count; i++)
+            if (taskListCreateDto.Tasks != null && taskListCreateDto.Tasks.Count > 0)
             {
-                taskTag = new TaskTag()
-                {
-                    TaskId = taskList.Tasks[i].Id
-                };
+                Tag tag;
+                TaskTag taskTag;
 
-                foreach (TagCreateDto tagCreateDto in taskListCreateDto.Tasks[i].Tags)
+                for (int i = 0; i < taskListCreateDto.Tasks.Count; i++)
                 {
-                    tag = _mapper.Map<Tag>(tagCreateDto);
-                    _tagsRepo.PostTag(tag);
-                    _tagsRepo.SaveChanges();
+                    if (taskListCreateDto.Tasks[i].Tags != null && taskListCreateDto.Tasks[i].Tags.Count > 0)
+                    {
+                        taskTag = new TaskTag()
+                        {
+                            TaskId = taskList.Tasks[i].Id
+                        };
 
-                    taskTag.TagId = tag.Id;
-                    _taskTagsRepo.PostTaskTag(taskTag);
-                    _taskTagsRepo.SaveChanges();
+                        foreach (TagCreateDto tagCreateDto in taskListCreateDto.Tasks[i].Tags)
+                        {
+                            tag = _mapper.Map<Tag>(tagCreateDto);
+                            _tagsRepo.PostTag(tag);
+                            _tagsRepo.SaveChanges();
+
+                            taskTag.TagId = tag.Id;
+                            _taskTagsRepo.PostTaskTag(taskTag);
+                            _taskTagsRepo.SaveChanges();
+                        }
+                    }
                 }
             }
 
-            TaskListReadDto taskListReadDto = _mapper.Map<TaskListReadDto>(taskList);
+            TaskList taskListCreated = _taskListsRepo.GetTaskListById(taskList.Id);
+            TaskListReadDto taskListReadDto = _mapper.Map<TaskListReadDto>(taskListCreated);
+
+            if (taskListCreated.Tasks != null && taskListCreated.Tasks.Count > 0)
+            {
+                List<Tag> tags;
+
+                for (int i = 0; i < taskListCreated.Tasks.Count; i++)
+                {
+                    if (taskListCreated.Tasks[i].TaskTags != null && taskListCreated.Tasks[i].TaskTags.Count > 0)
+                    {
+                        tags = taskListCreated.Tasks[i].TaskTags.Select(tt => tt.Tag).ToList();
+                        taskListReadDto.Tasks[i].Tags = _mapper.Map<List<TagReadDto>>(tags);
+                    }
+                }
+            }
 
             return CreatedAtAction("GetTaskListById", new { id = taskListReadDto.Id }, taskListReadDto);
         }
