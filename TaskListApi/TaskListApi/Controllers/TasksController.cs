@@ -6,6 +6,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using TaskListApi.Data;
 using TaskListApi.Dtos;
 using TaskListApi.Models;
@@ -21,6 +22,7 @@ namespace TaskListApi.Controllers
         private readonly ITagsRepo _tagsRepo;
         private readonly ITaskTagsRepo _taskTagsRepo;
         private readonly IMapper _mapper;
+        private readonly ILogger<TasksController> _logger;
 
         public TasksController
         (
@@ -28,7 +30,8 @@ namespace TaskListApi.Controllers
             ITaskListsRepo taskListsRepo,
             ITagsRepo tagsRepo,
             ITaskTagsRepo taskTagsRepo,
-            IMapper mapper
+            IMapper mapper,
+            ILogger<TasksController> logger
         )
         {
             _tasksRepo = tasksRepo;
@@ -36,6 +39,7 @@ namespace TaskListApi.Controllers
             _tagsRepo = tagsRepo;
             _taskTagsRepo = taskTagsRepo;
             _mapper = mapper;
+            _logger = logger;
         }
 
         /// <summary>
@@ -47,11 +51,16 @@ namespace TaskListApi.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public ActionResult<IEnumerable<TaskReadDto>> GetTasks(long taskListId)
         {
+            _logger.LogInformation("Consultando a lista de tarefas de Id: {id}", taskListId);
             TaskList taskList = _taskListsRepo.GetTaskListById(taskListId);
 
             if (taskList == null)
+            {
+                _logger.LogWarning("A lista de tarefas de Id: {id} não existe", taskListId);
                 return NotFound();
+            }
 
+            _logger.LogInformation("Consultando as tarefas cadastradas para a lista de Id: {id}", taskListId);
             IEnumerable<Models.Task> tasks = _tasksRepo.GetTasks(taskListId);
 
             List<Tag> tags;
@@ -60,14 +69,17 @@ namespace TaskListApi.Controllers
 
             foreach (Models.Task task in tasks)
             {
+                _logger.LogInformation("Realizando o mapeamento da tarefa de Id: {id} para a classe de DTO", task.Id);
                 taskDto = _mapper.Map<TaskReadDto>(task);
 
                 if (task.TaskTags != null && task.TaskTags.Count > 0)
                 {
+                    _logger.LogInformation("Realizando o mapeamento das tags da tarefa de Id: {id} para a classe de DTO", task.Id);
                     tags = task.TaskTags.Select(tt => tt.Tag).ToList();
                     taskDto.Tags = _mapper.Map<List<TagReadDto>>(tags);
                 }
-                
+
+                _logger.LogInformation("Adicionando a tarefa de Id: {id} na lista de tarefas", task.Id);
                 taskDtos.Add(taskDto);
             }
 
@@ -83,15 +95,21 @@ namespace TaskListApi.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public ActionResult<TaskReadDto> GetTaskById(long id)
         {
+            _logger.LogInformation("Consultando a tarefa de Id: {id}", id);
             Models.Task task = _tasksRepo.GetTaskById(id);
 
             if (task == null)
+            {
+                _logger.LogWarning("A tarefa de Id: {id} não existe", id);
                 return NotFound();
+            }
 
+            _logger.LogInformation("Mapeando a tarefa de Id: {id} para a classe de DTO", id);
             TaskReadDto taskReadDto = _mapper.Map<TaskReadDto>(task);
 
             if (task.TaskTags != null && task.TaskTags.Count > 0)
             {
+                _logger.LogInformation("Mapeando as tags da tarefa de Id: {id} para a classe de DTO", id);
                 List<Tag> tags = task.TaskTags.Select(tt => tt.Tag).ToList();
                 taskReadDto.Tags = _mapper.Map<List<TagReadDto>>(tags);
             }
@@ -109,13 +127,19 @@ namespace TaskListApi.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult<TaskCreateDto> PostTask(TaskCreateDto taskCreateDto)
         {
+            _logger.LogInformation("Consultando a lista de tarefas de Id: {id}", taskCreateDto.TaskListId);
             TaskList taskList = _taskListsRepo.GetTaskListById(taskCreateDto.TaskListId);
 
             if (taskList == null)
+            {
+                _logger.LogWarning("A lista de tarefas de Id: {id} não existe", taskCreateDto.TaskListId);
                 return NotFound();
+            }
 
+            _logger.LogInformation("Mapeando a tarefa a ser cadastrada para a model");
             Models.Task task = _mapper.Map<Models.Task>(taskCreateDto);
 
+            _logger.LogInformation("Cadastrando a tarefa no banco de dados");
             _tasksRepo.PostTask(task);
             _tasksRepo.SaveChanges();
 
@@ -127,6 +151,7 @@ namespace TaskListApi.Controllers
                     TaskId = task.Id
                 };
 
+                _logger.LogInformation("Cadastrando as tags da tarefa e fazendo os relacionamentos no banco de dados");
                 foreach (TagCreateDto tagCreateDto in taskCreateDto.Tags)
                 {
                     tag = _mapper.Map<Tag>(tagCreateDto);
@@ -139,6 +164,7 @@ namespace TaskListApi.Controllers
                 }
             }
 
+            _logger.LogInformation("Montando objeto de retorno");
             Models.Task taskCreated = _tasksRepo.GetTaskById(task.Id);
             TaskReadDto taskReadDto = _mapper.Map<TaskReadDto>(taskCreated);
 
@@ -162,16 +188,22 @@ namespace TaskListApi.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult PutTask(long id, TaskUpdateDto taskUpdateDto)
         {
+            _logger.LogInformation("Consultando a tarefa de Id: {id}", id);
             Models.Task task = _tasksRepo.GetTaskById(id);
 
             if (task == null)
+            {
+                _logger.LogWarning("A tarefa de Id: {id} não existe", id);
                 return NotFound();
+            }
 
+            _logger.LogInformation("Editando a tarefa de Id: {id}", id);
             _mapper.Map(taskUpdateDto, task);
             _tasksRepo.SaveChanges();
 
             if (task.TaskTags != null && task.TaskTags.Count > 0)
             {
+                _logger.LogInformation("Deletando as tags atuais da tarefa de Id: {id}", id);
                 _taskTagsRepo.DeleteTaskTags(task.TaskTags);
                 _taskTagsRepo.SaveChanges();
             }
@@ -184,6 +216,7 @@ namespace TaskListApi.Controllers
                     TaskId = task.Id
                 };
 
+                _logger.LogInformation("Cadastrando as novas tags da tarefa de Id: {id}", id);
                 foreach (TagUpdateDto tagUpdateDto in taskUpdateDto.Tags)
                 {
                     tag = _mapper.Map<Tag>(tagUpdateDto);
@@ -210,17 +243,24 @@ namespace TaskListApi.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult PatchTask(long id, JsonPatchDocument<TaskUpdateDto> jsonPatchDocument)
         {
+            _logger.LogInformation("Consultando a tarefa de Id: {id}", id);
             Models.Task task = _tasksRepo.GetTaskById(id);
 
             if (task == null)
+            {
+                _logger.LogWarning("A tarefa de Id: {id} não existe", id);
                 return NotFound();
+            }
 
+            _logger.LogInformation("Aplicando a alteração na classe de DTO");
             TaskUpdateDto taskUpdateDto = _mapper.Map<TaskUpdateDto>(task);
             jsonPatchDocument.ApplyTo(taskUpdateDto, ModelState);
 
+            _logger.LogInformation("Validando a alteração feita na classe de DTO");
             if (!TryValidateModel(taskUpdateDto))
                 return ValidationProblem(ModelState);
 
+            _logger.LogInformation("Alterando a tarefa de Id: {id}", id);
             _mapper.Map(taskUpdateDto, task);
             _tasksRepo.SaveChanges();
 
@@ -236,11 +276,16 @@ namespace TaskListApi.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public ActionResult DeleteTask(long id)
         {
+            _logger.LogInformation("Consultando a tarefa de Id: {id}", id);
             Models.Task task = _tasksRepo.GetTaskById(id);
 
             if (task == null)
+            {
+                _logger.LogWarning("A tarefa de Id: {id} não existe", id);
                 return NotFound();
+            }
 
+            _logger.LogInformation("Removendo a tarefa de Id: {id}", id);
             _tasksRepo.DeleteTask(task);
             _tasksRepo.SaveChanges();
 
