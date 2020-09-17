@@ -125,7 +125,7 @@ namespace TaskListApi.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public ActionResult<TaskCreateDto> PostTask(TaskCreateDto taskCreateDto)
+        public ActionResult<TaskReadDto> PostTask(TaskCreateDto taskCreateDto)
         {
             _logger.LogInformation("Consultando a lista de tarefas de Id: {id}", taskCreateDto.TaskListId);
             TaskList taskList = _taskListsRepo.GetTaskListById(taskCreateDto.TaskListId);
