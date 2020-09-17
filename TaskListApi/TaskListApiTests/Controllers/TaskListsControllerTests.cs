@@ -16,6 +16,7 @@ using Xunit;
 
 namespace TaskListApiTests.Controllers
 {
+    //Relatório de cobertura disponível em Coverage/index.html
     public class TaskListsControllerTests
     {
         private readonly Mock<ITaskListsRepo> _mockTaskListsRepo;
