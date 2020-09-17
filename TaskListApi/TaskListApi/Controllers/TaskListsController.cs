@@ -18,7 +18,6 @@ namespace TaskListApi.Controllers
     public class TaskListsController : ControllerBase
     {
         private readonly ITaskListsRepo _taskListsRepo;
-        private readonly ITasksRepo _tasksRepo;
         private readonly ITagsRepo _tagsRepo;
         private readonly ITaskTagsRepo _taskTagsRepo;
         private readonly IMapper _mapper;
@@ -26,8 +25,7 @@ namespace TaskListApi.Controllers
 
         public TaskListsController
         (
-            ITaskListsRepo taskListsRepo, 
-            ITasksRepo tasksRepo, 
+            ITaskListsRepo taskListsRepo,
             ITagsRepo tagsRepo, 
             ITaskTagsRepo taskTagsRepo, 
             IMapper mapper,
@@ -35,7 +33,6 @@ namespace TaskListApi.Controllers
         )
         {
             _taskListsRepo = taskListsRepo;
-            _tasksRepo = tasksRepo;
             _tagsRepo = tagsRepo;
             _taskTagsRepo = taskTagsRepo;
             _mapper = mapper;
@@ -127,7 +124,7 @@ namespace TaskListApi.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public ActionResult<TaskListCreateDto> PostTaskList(TaskListCreateDto taskListCreateDto)
+        public ActionResult<TaskListReadDto> PostTaskList(TaskListCreateDto taskListCreateDto)
         {
             _logger.LogInformation("Mapeando a lista de tarefas a ser cadastrada para a model");
             TaskList taskList = _mapper.Map<TaskList>(taskListCreateDto);
