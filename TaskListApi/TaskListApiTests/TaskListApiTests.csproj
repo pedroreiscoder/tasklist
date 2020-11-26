@@ -23,8 +23,4 @@
     <ProjectReference Include="..\TaskListApi\TaskListApi.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Coverage\" />
-  </ItemGroup>
-
 </Project>
