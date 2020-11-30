@@ -1,0 +1,17 @@
+version: '3.4'
+
+services:
+  tasklistapi:
+    image: ${DOCKER_REGISTRY-}tasklistapi
+    build:
+      context: .
+      dockerfile: TaskListApi/Dockerfile
+  ms-sql-server:
+    image: mcr.microsoft.com/mssql/server:2017-latest-ubuntu
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "P3dr0@123"
+      MSSQL_PID: Express
+    ports: 
+      - "1433:1433"
+

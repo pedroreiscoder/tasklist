@@ -31,7 +31,14 @@ namespace TaskListApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers().AddNewtonsoftJson(s => s.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver());
-            services.AddDbContext<AppDbContext>(o => o.UseSqlServer(Configuration.GetConnectionString("TaskListConnection")));
+
+            string server = Configuration["DBServer"] ?? "ms-sql-server";
+            string port = Configuration["DBPort"] ?? "1433";
+            string user = Configuration["DBUser"] ?? "SA";
+            string password = Configuration["DBPassword"] ?? "P3dr0@123";
+            string database = Configuration["Database"] ?? "TaskListDb";
+
+            services.AddDbContext<AppDbContext>(o => o.UseSqlServer($"Server={server},{port};Database={database};User ID={user};Password={password}"));
             services.AddSwaggerGen(c => {
                 string xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 string xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
@@ -65,6 +72,8 @@ namespace TaskListApi
             {
                 endpoints.MapControllers();
             });
+
+            PrepDB.Population(app);
         }
     }
 }

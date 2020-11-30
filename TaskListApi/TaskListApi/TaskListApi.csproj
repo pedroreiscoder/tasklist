@@ -9,6 +9,7 @@
     <NoWarn>$(NoWarn);1591</NoWarn>
     <UserSecretsId>d9b403ff-94e1-4455-961a-5b3070dce7df</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
   </PropertyGroup>
 
   <ItemGroup>
