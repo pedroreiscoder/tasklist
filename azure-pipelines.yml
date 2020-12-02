@@ -20,3 +20,10 @@ steps:
       projects: '**/*.csproj'
       arguments: '--no-restore'
     displayName: 'Build projects'
+
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'test'
+      projects: '**/*Tests.csproj'
+      arguments: '--no-restore'
+    displayName: 'Run Tests'
