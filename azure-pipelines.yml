@@ -27,3 +27,18 @@ steps:
       projects: '**/*Tests.csproj'
       arguments: '--no-restore'
     displayName: 'Run Tests'
+
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'publish'
+      publishWebProjects: false
+      projects: '**/TaskListApi.csproj'
+      arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+      zipAfterPublish: True
+    displayName: 'Publish CustomerApi'
+  
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      artifactName: 'TaskListApi'
+    displayName: 'Publish Artifacts'
